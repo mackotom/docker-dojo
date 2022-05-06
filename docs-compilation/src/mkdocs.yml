@@ -1,0 +1,22 @@
+site_name: Build with docker
+
+theme:
+  name : 'material'
+  palette:
+    scheme: slate
+    primary: 'indigo'
+    accent: 'indigo'
+  language: 'fr'
+  
+markdown_extensions:
+  - codehilite:
+      guess_lang: false
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.inlinehilite
+  - pymdownx.emoji
+  - pymdownx.keys
+  - attr_list
+  - toc:
+      permalink: true

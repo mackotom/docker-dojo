@@ -1,0 +1,69 @@
+services:
+  app:
+    build:
+      args:
+        user: ${SYSTEM_APP_USER}
+        uid: ${SYSTEM_APP_UID}
+      context: ./
+      dockerfile: ./Dockerfile
+    image: laravel-dev
+    container_name: laravel-dev-container
+    working_dir: /var/www
+    volumes: 
+      - ./:/var/www
+    networks:
+      - dev
+  db:
+    image: mariadb:10.7
+    container_name: laravel-dev-db
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
+      MARIADB_DATABASE: ${DB_DATABASE}
+      MARIADB_USER: ${DB_USERNAME}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./.docker/docker-entrypoint-initdb.d
+      - db-data:/var/lib/mysql
+    networks:
+      - dev
+  front:
+    build:
+      context: ./
+      dockerfile: ./.docker/nginx/Dockerfile
+      args:
+        user: ${SYSTEM_APP_USER}
+        uid: ${SYSTEM_APP_UID}
+    image: laravel-dev-front
+    container_name: laravel-dev-front
+    restart: unless-stopped
+    ports:
+      - 8080:80
+    volumes:
+      - ./:/var/www
+    networks:
+      - dev
+  cache:
+    image: redis:6-alpine
+    container_name: laravel-dev-cache
+    restart: unless-stopped
+    networks:
+      - dev
+    volumes:
+      - cache-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      retries: 3
+      timeout: 5s
+
+volumes:
+  db-data:
+    driver: local
+  cache-data:
+    driver: local
+
+networks:
+  dev:
+    name: laravel-dev
+    driver: bridge
+
+# docker-compose up --build -d 
